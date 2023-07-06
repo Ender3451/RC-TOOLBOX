@@ -40,6 +40,7 @@ class RCToolbox(QMainWindow):
         super().__init__()
         self.selected_penalties = {}
         self.names = []
+        self.selected_name = None  # Track the currently selected name
 
         self.setWindowTitle("RC Toolbox")
 
@@ -87,7 +88,9 @@ class RCToolbox(QMainWindow):
                 f"The penalty '{incident}' has been saved for {name}",
             )
             self.update_penalty_counts(name)
-            self.penalty_dialog.close()
+
+        self.penalty_dialog = QDialog(self)  # Create a new penalty dialog instance
+        self.penalty_dialog.setWindowTitle("Select Penalties")
 
         penalty_layout = QVBoxLayout(self.penalty_dialog)
         penalty_layout.setSpacing(20)
@@ -186,13 +189,24 @@ class RCToolbox(QMainWindow):
         else:
             QMessageBox.warning(self, "Invalid Name", "Please enter a name.")
 
+    def closeEvent(self, event):
+        self.selected_name = None  # Reset the selected name on window close
+        event.accept()
+
+    def changeEvent(self, event):
+        # Track window state changes to reset the selected name
+        if event.type() == event.WindowStateChange:
+            if self.isMinimized():
+                self.selected_name = None
+        event.accept()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyleSheet(
         """
         QMainWindow {
-            background-color: #F0F0F0;
+           background-color: #F0F0F0;
         }
 
         QLabel {
