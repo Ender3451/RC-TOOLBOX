@@ -32,7 +32,7 @@ penalties = {
     "Extreme Offense": {"Purposefully disrupting the race": 5},
 }
 
-MAX_PENALTY_POINTS = 30
+MAX_PENALTY_POINTS = 21
 
 
 class RCToolbox(QMainWindow):
