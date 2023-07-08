@@ -11,7 +11,10 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QLineEdit,
     QDialog,
+    QHBoxLayout,
 )
+
+
 from PyQt5.QtCore import Qt
 import csv
 
@@ -89,6 +92,15 @@ class RCToolbox(QMainWindow):
             )
             self.update_penalty_counts(name)
 
+        def remove_penalty(offense, incident):
+            self.selected_penalties[name].remove((offense, incident))
+            QMessageBox.information(
+                self,
+                "Penalty Removed",
+                f"The penalty '{incident}' has been removed for {name}",
+            )
+            self.update_penalty_counts(name)
+
         self.penalty_dialog = QDialog(self)  # Create a new penalty dialog instance
         self.penalty_dialog.setWindowTitle("Select Penalties")
 
@@ -110,6 +122,19 @@ class RCToolbox(QMainWindow):
                     lambda _, o=offense, i=incident: add_penalty(o, i)
                 )
                 penalty_layout.addWidget(button, alignment=Qt.AlignLeft)
+
+        remove_layout = QHBoxLayout()
+        remove_label = QLabel("Remove penalty:")
+        remove_layout.addWidget(remove_label)
+
+        for offense, incident in self.selected_penalties[name]:
+            button = QPushButton(f"{incident}")
+            button.clicked.connect(
+                lambda _, o=offense, i=incident: remove_penalty(o, i)
+            )
+            remove_layout.addWidget(button, alignment=Qt.AlignLeft)
+
+        penalty_layout.addLayout(remove_layout)
 
         self.penalty_dialog.exec_()
 
@@ -190,7 +215,7 @@ class RCToolbox(QMainWindow):
             QMessageBox.warning(self, "Invalid Name", "Please enter a name.")
 
     def closeEvent(self, event):
-        self.selected_name = None  # Reset the selected name on window close
+        self.selected_name = None  # Reset theselected name on window close
         event.accept()
 
     def changeEvent(self, event):
@@ -235,3 +260,4 @@ if __name__ == "__main__":
     toolbox = RCToolbox()
     toolbox.show()
     sys.exit(app.exec_())
+    
