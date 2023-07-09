@@ -13,8 +13,6 @@ from PyQt5.QtWidgets import (
     QDialog,
     QHBoxLayout,
 )
-
-
 from PyQt5.QtCore import Qt
 import csv
 
@@ -81,6 +79,10 @@ class RCToolbox(QMainWindow):
 
         self.penalty_dialog = QDialog(self)
         self.penalty_dialog.setWindowTitle("Select Penalties")
+
+        self.import_button = QPushButton("Import Penalties")
+        self.import_button.clicked.connect(self.import_penalties)
+        self.layout.addWidget(self.import_button, alignment=Qt.AlignCenter)
 
     def display_penalties(self, name):
         def add_penalty(offense, incident):
@@ -187,6 +189,55 @@ class RCToolbox(QMainWindow):
                 f"The penalty details have been saved to '{file_path}'.",
             )
 
+    def import_penalties(self):
+        default_path = os.path.dirname(os.path.abspath(__file__))
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Import Penalties", default_path, "CSV Files (*.csv)"
+        )
+
+        if file_path:
+            with open(file_path, "r", newline="") as file:
+                reader = csv.reader(file)
+                next(reader)  # Skip the header row
+                for row in reader:
+                    name, incident, points = row
+                    if name not in self.selected_penalties:
+                        self.names.append(name)
+                        self.selected_penalties[name] = []
+                        button = QPushButton(name)
+                        button.setFixedWidth(200)
+                        button.setFixedHeight(40)
+                        button.setStyleSheet(
+                            """
+                            QPushButton {
+                                font-size: 12pt;
+Certainly! Here's the rest of the code you provided with increased spacing for the player boxes and additional comments:
+
+```python
+                            }
+                            """
+                        )
+                        button.clicked.connect(
+                            lambda _, n=name: self.display_penalties(n)
+                        )
+                        self.names_layout.addWidget(button)
+                        self.penalty_labels[name] = QLabel(f"{name}: 0/{MAX_PENALTY_POINTS}")
+                        self.penalty_labels[name].setStyleSheet("font-size: 12pt;")
+                        self.names_layout.addWidget(self.penalty_labels[name])
+
+                    points = int(points)
+                    for offense, incidents in penalties.items():
+                        if incident in incidents:
+                            self.selected_penalties[name].append((offense, incident))
+                            break
+
+            QMessageBox.information(
+                self,
+                "Penalties Imported",
+                f"The penalties have been imported from '{file_path}'.",
+            )
+
     def add_name(self):
         name = self.names_entry.text()
         if name:
@@ -215,7 +266,7 @@ class RCToolbox(QMainWindow):
             QMessageBox.warning(self, "Invalid Name", "Please enter a name.")
 
     def closeEvent(self, event):
-        self.selected_name = None  # Reset theselected name on window close
+        self.selected_name = None  # Reset the selected name on window close
         event.accept()
 
     def changeEvent(self, event):
@@ -260,4 +311,3 @@ if __name__ == "__main__":
     toolbox = RCToolbox()
     toolbox.show()
     sys.exit(app.exec_())
-    
