@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QDialog,
     QHBoxLayout,
+    QGridLayout,
 )
 from PyQt5.QtCore import Qt
 import csv
@@ -75,7 +76,7 @@ class RCToolbox(QMainWindow):
         self.output_button.clicked.connect(self.output_penalties)
         self.layout.addWidget(self.output_button, alignment=Qt.AlignCenter)
 
-        self.penalty_labels = {}
+        self.penalty_buttons = {}
 
         self.penalty_dialog = QDialog(self)
         self.penalty_dialog.setWindowTitle("Select Penalties")
@@ -83,6 +84,10 @@ class RCToolbox(QMainWindow):
         self.import_button = QPushButton("Import Penalties")
         self.import_button.clicked.connect(self.import_penalties)
         self.layout.addWidget(self.import_button, alignment=Qt.AlignCenter)
+
+        # Use QGridLayout for the buttons
+        self.buttons_layout = QGridLayout()
+        self.names_layout.addLayout(self.buttons_layout)
 
     def display_penalties(self, name):
         def add_penalty(offense, incident):
@@ -145,15 +150,28 @@ class RCToolbox(QMainWindow):
             penalties[offense][incident]
             for offense, incident in self.selected_penalties[name]
         )
-        if name in self.penalty_labels:
-            self.penalty_labels[name].setText(
-                f"{name}: {total_points}/{MAX_PENALTY_POINTS}"
-            )
+        if name in self.penalty_buttons:
+            self.penalty_buttons[name].setText(f"{name}: {total_points}/{MAX_PENALTY_POINTS}")
         else:
-            label = QLabel(f"{name}: {total_points}/{MAX_PENALTY_POINTS}")
-            label.setStyleSheet("font-size: 12pt;")
-            self.names_layout.addWidget(label)
-            self.penalty_labels[name] = label
+            button = QPushButton(name)
+            button.setFixedWidth(200)
+            button.setFixedHeight(40)
+            button.setStyleSheet(
+                """
+                QPushButton {
+                    font-size: 12pt;
+                }
+                """
+            )
+            button.clicked.connect(lambda _, n=name: self.display_penalties(n))
+
+            self.penalty_buttons[name] = button
+            self.names_layout.addWidget(button)
+
+        if total_points >= MAX_PENALTY_POINTS:
+            self.penalty_buttons[name].setDisabled(True)
+        else:
+            self.penalty_buttons[name].setEnabled(True)
 
     def output_penalties(self):
         if not self.selected_penalties:
@@ -212,19 +230,14 @@ class RCToolbox(QMainWindow):
                             """
                             QPushButton {
                                 font-size: 12pt;
-Certainly! Here's the rest of the code you provided with increased spacing for the player boxes and additional comments:
-
-```python
                             }
                             """
                         )
                         button.clicked.connect(
                             lambda _, n=name: self.display_penalties(n)
                         )
+                        self.penalty_buttons[name] = button
                         self.names_layout.addWidget(button)
-                        self.penalty_labels[name] = QLabel(f"{name}: 0/{MAX_PENALTY_POINTS}")
-                        self.penalty_labels[name].setStyleSheet("font-size: 12pt;")
-                        self.names_layout.addWidget(self.penalty_labels[name])
 
                     points = int(points)
                     for offense, incidents in penalties.items():
@@ -257,10 +270,8 @@ Certainly! Here's the rest of the code you provided with increased spacing for t
             )
             button.clicked.connect(lambda _, n=name: self.display_penalties(n))
 
+            self.penalty_buttons[name] = button
             self.names_layout.addWidget(button)
-            self.penalty_labels[name] = QLabel(f"{name}: 0/{MAX_PENALTY_POINTS}")
-            self.penalty_labels[name].setStyleSheet("font-size: 12pt;")
-            self.names_layout.addWidget(self.penalty_labels[name])
 
         else:
             QMessageBox.warning(self, "Invalid Name", "Please enter a name.")
