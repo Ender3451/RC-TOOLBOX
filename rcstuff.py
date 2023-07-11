@@ -19,19 +19,20 @@ import csv
 
 # Penalty points for each incident
 penalties = {
-    "Minor Offense": {
-        "Cutting corners with advantage gained": 1,
+    "Contact": {
         "Minor contact": 1,
-        "False start (with advantage gained)": 1,
-        "Offroading": 1,
+        "Wreck": 4,
     },
-    "Moderate Offense": {"Failure to yield": 2, "Intentional ramming": 2},
-    "Severe Offense": {
-        "Reckless driving endangering others (excessive contact)": 3,
+    "Driving": {
+        "Off-road": 1,
+        "Corner cut": 2,
+        "Reckless/endangering driving": 3,
+    },
+    "Misbehavior": {
+        "Failure to comply": 2,
         "Not listening to EM": 4,
-        "Intentional wrecking": 4,
+        "Disrupting the race": 5,
     },
-    "Extreme Offense": {"Purposefully disrupting the race": 5},
 }
 
 MAX_PENALTY_POINTS = 21
@@ -176,7 +177,7 @@ class RCToolbox(QMainWindow):
     def output_penalties(self):
         if not self.selected_penalties:
             QMessageBox.information(
-                self, "No Penalties", "No penalties have been selected."
+        self, "No Penalties", "No penalties have been selected."
             )
             return
 
@@ -196,7 +197,6 @@ class RCToolbox(QMainWindow):
                         for offense, incident in incidents:
                             points = penalties[offense][incident]
                             penalty_points += points
-                            writer.writerow([name, incident, points])
                         writer.writerow(
                             [name, "Total Penalty Points", penalty_points]
                         )
