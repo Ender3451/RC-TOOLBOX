@@ -79,9 +79,6 @@ class RCToolbox(QMainWindow):
 
         self.penalty_buttons = {}
 
-        self.penalty_dialog = QDialog(self)
-        self.penalty_dialog.setWindowTitle("Select Penalties")
-
         self.import_button = QPushButton("Import Penalties")
         self.import_button.clicked.connect(self.import_penalties)
         self.layout.addWidget(self.import_button, alignment=Qt.AlignCenter)
@@ -152,7 +149,9 @@ class RCToolbox(QMainWindow):
             for offense, incident in self.selected_penalties[name]
         )
         if name in self.penalty_buttons:
-            self.penalty_buttons[name].setText(f"{name}: {total_points}/{MAX_PENALTY_POINTS}")
+            self.penalty_buttons[name].setText(
+                f"{name}: {total_points}/{MAX_PENALTY_POINTS}"
+            )
         else:
             button = QPushButton(name)
             button.setFixedWidth(200)
@@ -177,7 +176,7 @@ class RCToolbox(QMainWindow):
     def output_penalties(self):
         if not self.selected_penalties:
             QMessageBox.information(
-        self, "No Penalties", "No penalties have been selected."
+                self, "No Penalties", "No penalties have been selected."
             )
             return
 
@@ -197,9 +196,7 @@ class RCToolbox(QMainWindow):
                         for offense, incident in incidents:
                             points = penalties[offense][incident]
                             penalty_points += points
-                        writer.writerow(
-                            [name, "Total Penalty Points", penalty_points]
-                        )
+                        writer.writerow([name, "Total Penalty Points", penalty_points])
 
             QMessageBox.information(
                 self,
@@ -233,9 +230,7 @@ class RCToolbox(QMainWindow):
                             }
                             """
                         )
-                        button.clicked.connect(
-                            lambda _, n=name: self.display_penalties(n)
-                        )
+                        button.clicked.connect(lambda _, n=name: self.display_penalties(n))
                         self.penalty_buttons[name] = button
                         self.names_layout.addWidget(button)
 
